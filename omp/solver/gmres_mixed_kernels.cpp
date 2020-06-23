@@ -77,7 +77,7 @@ void finish_arnoldi(matrix::Dense<ValueType> *next_krylov_basis,
                     matrix::Dense<ValueType> *hessenberg_iter, size_type iter,
                     const stopping_status *stop_status)
 {
-#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
 
     for (size_type i = 0; i < next_krylov_basis->get_size()[1]; ++i) {
         if (stop_status[i].has_stopped()) {
@@ -133,7 +133,7 @@ void finish_arnoldi_reorth(
     matrix::Dense<remove_complex<ValueType>> *arnoldi_norm, size_type iter,
     const stopping_status *stop_status)
 {
-#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
 #pragma omp declare reduction(addnc : remove_complex<ValueType> : omp_out = omp_out + omp_in)
 
     for (size_type i = 0; i < next_krylov_basis->get_size()[1]; ++i) {
@@ -224,7 +224,7 @@ void finish_arnoldi_CGS(
     const stopping_status *stop_status)
 {
     const remove_complex<ValueType> eta = 1.0 / sqrt(2.0);
-#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
 #pragma omp declare reduction(addnc : remove_complex<ValueType> : omp_out = omp_out + omp_in)
 
     for (size_type i = 0; i < next_krylov_basis->get_size()[1]; ++i) {
@@ -343,7 +343,7 @@ void finish_arnoldi_CGS2(
     const stopping_status *stop_status)
 {
     const remove_complex<ValueType> eta = 1.0 / sqrt(2.0);
-#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
 #pragma omp declare reduction(addnc : remove_complex<ValueType> : omp_out = omp_out + omp_in)
 #pragma omp declare reduction(infnc : remove_complex<ValueType> : omp_out = (omp_out >= omp_in? omp_out: omp_in))
     //#pragma omp declare reduction(infnc : remove_complex<ValueType> : omp_out
@@ -572,11 +572,12 @@ void calculate_next_residual_norm(
             continue;
         }
         residual_norm_collection->at(iter + 1, i) =
-            -givens_sin->at(iter, i) * residual_norm_collection->at(iter, i);
+            -conj(givens_sin->at(iter, i)) *
+            residual_norm_collection->at(iter, i);
         residual_norm_collection->at(iter, i) =
             givens_cos->at(iter, i) * residual_norm_collection->at(iter, i);
         residual_norm->at(0, i) =
-            abs(residual_norm_collection->at(iter + 1, i)) / b_norm->at(0, i);
+            abs(residual_norm_collection->at(iter + 1, i));
     }
 }
 
