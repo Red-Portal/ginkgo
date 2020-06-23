@@ -743,6 +743,7 @@ gh-pages:
     refs:
       - develop
       - master
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
@@ -764,6 +765,7 @@ threadsanitizer:
     refs:
       - master
       - develop
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
@@ -784,6 +786,7 @@ leaksanitizer:
     refs:
       - master
       - develop
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
@@ -804,6 +807,7 @@ addresssanitizer:
     refs:
       - master
       - develop
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
@@ -824,6 +828,7 @@ leaksanitizer:
     refs:
       - master
       - develop
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
@@ -846,6 +851,7 @@ undefinedsanitizer:
     refs:
       - master
       - develop
+      - release/1.2.0
       - tags
     variables:
       - $RUN_CI_TAG
