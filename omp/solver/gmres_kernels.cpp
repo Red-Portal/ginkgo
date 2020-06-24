@@ -64,7 +64,7 @@ void finish_arnoldi(size_type num_rows, matrix::Dense<ValueType> *krylov_bases,
 {
     const auto krylov_bases_rowoffset = num_rows;
     const auto next_krylov_rowoffset = (iter + 1) * krylov_bases_rowoffset;
-#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
     for (size_type i = 0; i < hessenberg_iter->get_size()[1]; ++i) {
         if (stop_status[i].has_stopped()) {
             continue;
@@ -191,7 +191,7 @@ void calculate_next_residual_norm(
         residual_norm_collection->at(iter, i) =
             givens_cos->at(iter, i) * residual_norm_collection->at(iter, i);
         residual_norm->at(0, i) =
-            abs(residual_norm_collection->at(iter + 1, i)) / b_norm->at(0, i);
+            abs(residual_norm_collection->at(iter + 1, i));
     }
 }
 
@@ -257,7 +257,7 @@ void initialize_1(std::shared_ptr<const OmpExecutor> exec,
         // Calculate b norm
         ValueType norm = zero<ValueType>();
 
-#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
 
 #pragma omp parallel for reduction(add : norm)
         for (size_type i = 0; i < b->get_size()[0]; ++i) {
@@ -293,7 +293,7 @@ void initialize_2(std::shared_ptr<const OmpExecutor> exec,
     for (size_type j = 0; j < residual->get_size()[1]; ++j) {
         // Calculate residual norm
         ValueType res_norm = zero<ValueType>();
-#pragma omp declare reduction(add:ValueType : omp_out = omp_out + omp_in)
+#pragma omp declare reduction(add : ValueType : omp_out = omp_out + omp_in)
 
 #pragma omp parallel for reduction(add : res_norm)
         for (size_type i = 0; i < residual->get_size()[0]; ++i) {
