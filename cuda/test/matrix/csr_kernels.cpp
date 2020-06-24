@@ -60,6 +60,7 @@ namespace {
 class Csr : public ::testing::Test {
 protected:
     using Mtx = gko::matrix::Csr<>;
+    using AbsMtx = gko::matrix::Csr<>;
     using Vec = gko::matrix::Dense<>;
     using ComplexVec = gko::matrix::Dense<std::complex<double>>;
     using ComplexMtx = gko::matrix::Csr<std::complex<double>>;
@@ -722,6 +723,18 @@ TEST_F(Csr, OneAutomaticalWorksWithDifferentMatrices)
     EXPECT_EQ("classical", classical_mtx_d->get_strategy()->get_name());
     ASSERT_NE(load_balance_mtx_d->get_strategy().get(),
               classical_mtx_d->get_strategy().get());
+}
+
+
+TEST_F(Csr, AbsoluteMatrixIsEquivalentToRef)
+{
+    set_up_apply_data(std::make_shared<Mtx::classical>());
+
+    auto abs_mtx = mtx->absolute();
+    auto dabs_mtx = dmtx->absolute();
+
+    GKO_ASSERT_MTX_NEAR(static_cast<AbsMtx *>(abs_mtx.get()),
+                        static_cast<AbsMtx *>(dabs_mtx.get()), 1e-14);
 }
 
 

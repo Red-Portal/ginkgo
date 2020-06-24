@@ -348,14 +348,15 @@ void spgeam(std::shared_ptr<const OmpExecutor> exec,
     auto c_col_idxs = c_col_idxs_array.get_data();
     auto c_vals = c_vals_array.get_data();
 
-    abstract_spgeam(a, b, [&](IndexType row) { return c_row_ptrs[row]; },
-                    [&](IndexType, IndexType col, ValueType a_val,
-                        ValueType b_val, IndexType &nz) {
-                        c_vals[nz] = valpha * a_val + vbeta * b_val;
-                        c_col_idxs[nz] = col;
-                        ++nz;
-                    },
-                    [](IndexType, IndexType) {});
+    abstract_spgeam(
+        a, b, [&](IndexType row) { return c_row_ptrs[row]; },
+        [&](IndexType, IndexType col, ValueType a_val, ValueType b_val,
+            IndexType &nz) {
+            c_vals[nz] = valpha * a_val + vbeta * b_val;
+            c_col_idxs[nz] = col;
+            ++nz;
+        },
+        [](IndexType, IndexType) {});
 }
 
 GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_SPGEAM_KERNEL);
@@ -802,6 +803,22 @@ void is_sorted_by_column_index(
 
 GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
     GKO_DECLARE_CSR_IS_SORTED_BY_COLUMN_INDEX);
+
+
+template <typename ValueType, typename IndexType>
+void absolute(std::shared_ptr<const OmpExecutor> exec,
+              const matrix::Csr<ValueType, IndexType> *source,
+              matrix::Csr<remove_complex<ValueType>, IndexType> *result)
+{
+    auto result_val = result->get_values();
+    auto source_val = source->get_const_values();
+#pragma omp parallel for
+    for (size_type i = 0; i < source->get_num_stored_elements(); i++) {
+        result_val[i] = abs(source_val[i]);
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_ABSOLUTE);
 
 
 }  // namespace csr

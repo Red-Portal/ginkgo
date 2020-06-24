@@ -78,7 +78,7 @@ GKO_REGISTER_OPERATION(calculate_nonzeros_per_row,
 GKO_REGISTER_OPERATION(sort_by_column_index, csr::sort_by_column_index);
 GKO_REGISTER_OPERATION(is_sorted_by_column_index,
                        csr::is_sorted_by_column_index);
-
+GKO_REGISTER_OPERATION(absolute, csr::absolute);
 
 }  // namespace csr
 
@@ -461,6 +461,22 @@ bool Csr<ValueType, IndexType>::is_sorted_by_column_index() const
     bool is_sorted;
     exec->run(csr::make_is_sorted_by_column_index(this, &is_sorted));
     return is_sorted;
+}
+
+
+template <typename ValueType, typename IndexType>
+std::unique_ptr<LinOp> Csr<ValueType, IndexType>::absolute() const
+{
+    using abs_type = remove_complex<ValueType>;
+    using abs_csr = Csr<abs_type, IndexType>;
+    auto exec = this->get_executor();
+    auto abs_cpy = abs_csr::create(exec, this->get_size(),
+                                   this->get_num_stored_elements());
+    abs_cpy->col_idxs_ = this->col_idxs_;
+    abs_cpy->row_ptrs_ = this->row_ptrs_;
+    exec->run(csr::make_absolute(this, lend(abs_cpy)));
+    this->convert_strategy_helper(lend(abs_cpy));
+    return std::move(abs_cpy);
 }
 
 
